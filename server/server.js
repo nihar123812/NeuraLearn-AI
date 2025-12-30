@@ -1,5 +1,8 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import "dotenv/config";
+
+
+console.log("ENV CHECK:", process.env.SUPA_URL);
+
 
 import express from 'express'
 import cors from 'cors'

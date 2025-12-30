@@ -1,133 +1,124 @@
-import React, { useState } from 'react';
-import './Login.css';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import Navbar from '../../Components/Navbar/Navbar';
+import React, { useState } from "react";
+import "./Login.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import Navbar from "../../Components/Navbar/Navbar";
 
 const avatars = [
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Christopher",
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Jameson",
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Jessica",
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Jack",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=neura1"
+  "https://api.dicebear.com/7.x/bottts/svg?seed=neura1",
 ];
 
 function Login() {
   const [isSignup, setIsSignup] = useState(false);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [avatar, setAvatar] = useState(avatars[0]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const backend = import.meta.env.VITE_BACKEND_URL;
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
-    if (!email || !password || (isSignup && (!name || !avatar))) {
-      setError('Please fill in all required fields.');
+    if (!email || !password || (isSignup && !name)) {
+      setError("Please fill all required fields.");
       return;
     }
 
-    const endpoint = isSignup ? 'signup' : 'login';
-    const payload = isSignup ? { name, email, password, avatar } : { email, password };
+    const endpoint = isSignup ? "signup" : "login";
+    const payload = isSignup
+      ? { name, email, password, avatar }
+      : { email, password };
 
     try {
-      const resp = await axios.post(`${backend}api/user/${endpoint}`, payload);
-      if (resp.data.success) {
-        toast.success(resp.data.message);
+      const res = await axios.post(`${backend}api/user/${endpoint}`, payload);
+
+      if (res.data.success) {
+        toast.success(res.data.message);
         if (!isSignup) {
-          localStorage.setItem('token', resp.data.token);
-          localStorage.setItem('user', JSON.stringify(resp.data.user));
-          nav('/dashboard');
+          localStorage.setItem("token", res.data.token);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+          navigate("/dashboard");
         } else {
           setIsSignup(false);
         }
       } else {
-        toast.error(resp.data.message);
+        toast.error(res.data.message);
       }
     } catch (err) {
-      console.log(err);
-      toast.error('Something went wrong');
+      toast.error("Something went wrong");
     }
   };
 
   return (
-    <div>
-      <Navbar minimal={true} />
-      <div className="login-bg">
-        <div className="login-card">
-          <div className="login-logo-text">
-            <span role="img" aria-label="logo" className="logo-emoji">🧠</span>
-            <span className="logo-name">NeuraLearn AI</span>
+    <>
+      <Navbar minimal />
+
+      <div className="auth-wrapper">
+        <div className="auth-glass-card">
+          <div className="auth-brand">
+            <span className="brand-icon">🧠</span>
+            <h1>NeuraLearn AI</h1>
+            <p>
+              {isSignup
+                ? "Create your intelligent learning profile"
+                : "Welcome back, let’s continue learning"}
+            </p>
           </div>
 
-          <h2 className="login-title">{isSignup ? 'Create Account' : 'Welcome Back'}</h2>
-          <p className="login-subtitle">
-            {isSignup ? 'Sign up for NeuraLearn AI' : 'Sign in to NeuraLearn AI'}
-          </p>
-
-          <form className="login-form" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="auth-form">
             {isSignup && (
-              <>
-                <div className="login-field">
-                  <label>Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Your Name"
-                    autoComplete="name"
-                  />
-                </div>
-              </>
+              <div className="field">
+                <label>Name</label>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
             )}
 
-            <div className="login-field">
+            <div className="field">
               <label>Email</label>
               <input
                 type="email"
+                placeholder="you@example.com"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="you@email.com"
-                autoComplete={isSignup ? 'username' : 'email'}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
-            <div className="login-field">
+            <div className="field">
               <label>Password</label>
               <input
                 type="password"
+                placeholder="••••••••"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={isSignup ? 'Create a password' : '••••••••'}
-                autoComplete={isSignup ? 'new-password' : 'current-password'}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
             {isSignup && (
-              <div className="login-field">
-                <label>Choose an Avatar</label>
-                <div style={{ display: 'flex', gap: '0.7rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                  {avatars.map((url, idx) => (
+              <div className="field">
+                <label>Choose Avatar</label>
+                <div className="avatar-row">
+                  {avatars.map((url) => (
                     <img
                       key={url}
                       src={url}
-                      alt={`avatar-${idx + 1}`}
-                      className={`avatar-option${avatar === url ? ' selected' : ''}`}
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: '50%',
-                        border: avatar === url ? '2.5px solid #3F8EFC' : '2px solid #E2E8F0',
-                        cursor: 'pointer',
-                        boxShadow: avatar === url ? '0 0 0 2px #3EE4B2' : 'none',
-                        transition: 'border 0.2s, box-shadow 0.2s'
-                      }}
+                      alt="avatar"
+                      className={`avatar ${
+                        avatar === url ? "selected" : ""
+                      }`}
                       onClick={() => setAvatar(url)}
                     />
                   ))}
@@ -135,33 +126,44 @@ function Login() {
               </div>
             )}
 
-            {error && <div className="login-error">{error}</div>}
+            {error && <div className="error">{error}</div>}
 
-            <button type="submit" className="login-btn">
-              {isSignup ? 'Sign Up' : 'Sign In'}
+            <button className="primary-btn">
+              {isSignup ? "Create Account" : "Sign In"}
             </button>
           </form>
 
-          <div className="login-footer">
-            {isSignup ? 'Already have an account? ' : "Don't have an account? "}
-            <span
-              onClick={() => setIsSignup(!isSignup)}
-              className="login-link"
-              style={{ cursor: 'pointer' }}
-            >
-              {isSignup ? 'Sign in' : 'Sign up'}
+          <div className="switch-auth">
+            {isSignup ? "Already have an account?" : "New to NeuraLearn?"}
+            <span onClick={() => setIsSignup(!isSignup)}>
+              {isSignup ? " Sign In" : " Sign Up"}
             </span>
           </div>
         </div>
 
-        {/* Footer outside the login-card container */}
-        <div className="contact-footer">
-          <p>Email: <a href="mailto:santhoshbeeram19@gmail.com">santhoshbeeram19@gmail.com</a></p>
-          <p>Instagram: <a href="https://www.instagram.com/santhosh_reddy_19_?igsh=YXlxZGpvNmo4MGU=" target="_blank" rel="noopener noreferrer">@santhosh_reddy_19_</a></p>
-          <p>Contact for bug reporting</p>
-        </div>
+        <footer className="auth-footer">
+          <p>
+            Email:
+            <a href="mailto:niharkanchamreddy@gmail.com">
+              {" "}
+              niharkanchamreddy@gmail.com
+            </a>
+          </p>
+          <p>
+            Instagram:
+            <a
+              href="https://www.instagram.com/nihar_reddy.k"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {" "}
+              @nihar_reddy.k
+            </a>
+          </p>
+          <small>Contact for bug reporting</small>
+        </footer>
       </div>
-    </div>
+    </>
   );
 }
 
