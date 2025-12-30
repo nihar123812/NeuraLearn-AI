@@ -78,7 +78,7 @@ Try out **NeuraLearn AI** live:
 
 
 ```bash
-git clone https://github.com/santhosh-reddy-126/NeuraLearn-AI.git
+git clone https://github.com/nihar123812/NeuraLearn-AI.git
 ```
 
 ### Frontend Setup
@@ -143,7 +143,7 @@ python app.py
 
 We welcome contributions, feature suggestions, and bug reports!  
 📬 Feel free to open an issue or create a pull request:  
-👉 [GitHub Issues](https://github.com/santhosh-reddy-126/NeuraLearn-AI/issues)
+👉 [GitHub Issues](https://github.com/nihar123812/NeuraLearn-AI/issues)
 
 ---
 
@@ -156,7 +156,7 @@ This project is licensed under the **MIT License** – feel free to use and modi
 ## 📫 Contact
 
 Need help or want to collaborate?  
-📧 Reach out: `santhoshbeeram19@gmail.com`
+📧 Reach out: `niharkanchamreddy@gmail.com`
 
 
 
