@@ -11,20 +11,27 @@ from flask_cors import CORS
 
 from datetime import datetime
 
-from bardapi import Bard
-import re,json,requests
+import re, json, requests
 import time
-import requests
 
-def get_answer_from_bard(prompt):
-    url = "https://bard-ii8v.onrender.com/ask"
-    payload = {"question": prompt}
+def get_answer_from_grok(prompt):
+    """Call xAI's Grok API (OpenAI-compatible) for AI responses."""
+    url = "https://api.x.ai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {os.getenv('GROK_API_KEY')}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "grok-3-mini",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.7
+    }
     
     try:
-        response = requests.post(url, json=payload)
-        response.raise_for_status() 
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
         data = response.json()
-        return data.get("answer", "No answer returned.")
+        return data["choices"][0]["message"]["content"]
     except Exception as e:
         return f"Error: {e}"
 
@@ -139,9 +146,7 @@ SECRET_KEY = os.getenv("JWT_SECRET", "neuralearn_secret_key")
 
 
 import csv
-import json
 from io import StringIO
-from bardapi import Bard  # Assuming you're using bardapi
 
 def generate_quiz_by_topics(topics, questions_per_topic=2):
     topic_list = ', '.join([f'"{t}"' for t in topics])
@@ -154,7 +159,7 @@ def generate_quiz_by_topics(topics, questions_per_topic=2):
     )
 
     try:
-        answer = get_answer_from_bard(prompt)
+        answer = get_answer_from_grok(prompt)
         csv_file = StringIO(answer)
         reader = csv.DictReader(csv_file)
 
@@ -197,7 +202,7 @@ def ask_ai():
     data = request.get_json()
     question = data.get('question', '')
     user_id = data.get('user_id','')
-    ans = get_answer_from_bard(basic_query+"/n/n"+question)
+    ans = get_answer_from_grok(basic_query+"/n/n"+question)
     ans = re.sub(r'[*_#`>-]', '', ans)           
     ans = re.sub(r'\n+', ' ', ans)               
     ans = re.sub(r'\s{2,}', ' ', ans)   
@@ -351,7 +356,7 @@ def user_dashboard_data():
 
 
 
-        ans = get_answer_from_bard(prompt)
+        ans = get_answer_from_grok(prompt)
         match = re.search(r"\[.*\]", ans, re.DOTALL)
         if not match:
             raise ValueError("Could not extract a valid list from the AI response.")
@@ -393,7 +398,7 @@ def explain_topic():
     )
 
     try:
-        raw_ans = get_answer_from_bard(explain_prompt + topic)
+        raw_ans = get_answer_from_grok(explain_prompt + topic)
 
         match = re.search(r"```json\s*(.*?)\s*```", raw_ans, re.DOTALL | re.IGNORECASE)
         json_str = match.group(1).strip() if match else raw_ans
@@ -430,7 +435,7 @@ def gen_curr():
     )
 
     try:
-        response = get_answer_from_bard(prompt)
+        response = get_answer_from_grok(prompt)
 
         if response:
             match = re.search(r"```json(.*?)```", response, re.DOTALL)
@@ -443,11 +448,11 @@ def gen_curr():
                 curriculum = json.loads(json_str)
                 return jsonify({"success": True, "data": curriculum})
             except json.JSONDecodeError:
-                return jsonify({"success": False, "message": "Unable to parse JSON from Bard's response."})
+                return jsonify({"success": False, "message": "Unable to parse JSON from Grok's response."})
         else:
-            return jsonify({"success": False, "message": "Empty response from Bard."})
+            return jsonify({"success": False, "message": "Empty response from Grok."})
     except Exception as e:
-        return jsonify({"success": False, "message": f"Bard error: {str(e)}"})
+        return jsonify({"success": False, "message": f"Grok error: {str(e)}"})
 
 @app.route('/generate-quiz', methods=['POST'])
 def gen_quiz():

@@ -39,6 +39,8 @@ function Login() {
       : { email, password };
 
     try {
+      console.log("BACKEND URL:", import.meta.env.VITE_BACKEND_URL);
+
       const res = await axios.post(`${backend}api/user/${endpoint}`, payload);
 
       if (res.data.success) {

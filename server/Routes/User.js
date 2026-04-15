@@ -18,6 +18,8 @@ const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET || "neuralearn_secret_key"
 
 router.post('/signup', async (req, res) => {
+     console.log("REGISTER API HIT:", req.body);
+
      const {name,email,password,avatar} = req.body;
      try{
           const salt = await bcrypt.genSalt(10);
