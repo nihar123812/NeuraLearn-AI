@@ -11,27 +11,17 @@ from flask_cors import CORS
 
 from datetime import datetime
 
-import re, json, requests
-import time
+import re, json
+import google.generativeai as genai
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+_gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 
 def get_answer_from_grok(prompt):
-    """Call xAI's Grok API (OpenAI-compatible) for AI responses."""
-    url = "https://api.x.ai/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {os.getenv('GROK_API_KEY')}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "grok-3-mini",
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.7
-    }
-    
+    """Call Google Gemini 1.5 Flash API for AI responses."""
     try:
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        return data["choices"][0]["message"]["content"]
+        response = _gemini_model.generate_content(prompt)
+        return response.text
     except Exception as e:
         return f"Error: {e}"
 
@@ -448,11 +438,11 @@ def gen_curr():
                 curriculum = json.loads(json_str)
                 return jsonify({"success": True, "data": curriculum})
             except json.JSONDecodeError:
-                return jsonify({"success": False, "message": "Unable to parse JSON from Grok's response."})
+                return jsonify({"success": False, "message": "Unable to parse JSON from AI response."})
         else:
-            return jsonify({"success": False, "message": "Empty response from Grok."})
+            return jsonify({"success": False, "message": "Empty response from AI."})
     except Exception as e:
-        return jsonify({"success": False, "message": f"Grok error: {str(e)}"})
+        return jsonify({"success": False, "message": f"AI error: {str(e)}"})
 
 @app.route('/generate-quiz', methods=['POST'])
 def gen_quiz():

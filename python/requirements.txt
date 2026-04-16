@@ -6,5 +6,5 @@ joblib
 numpy
 flask-cors
 scikit-learn
-requests
 gunicorn
+google-generativeai
