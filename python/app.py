@@ -151,6 +151,7 @@ def generate_quiz_by_topics(topics, questions_per_topic=2):
         f"Please provide {questions_per_topic * len(topics)} quiz questions on topics: {topic_list}. "
         "Return the response as a JSON array where each object has these fields: "
         "'topic', 'question', 'option1', 'option2', 'option3', 'option4', 'answer'. "
+        "CRITICAL: The 'answer' field MUST contain the EXACT full text of the correct option, NOT the option index (e.g., if option1 is 'Apple', the answer field must be 'Apple', NOT '1' or 'option1'). "
         "Return ONLY the JSON array containing the objects, ensuring it is perfectly formatted JSON wrapped in an outer object with key 'questions'. JSON structure: {\"questions\": [{\"topic\":...}]}."
     )
 
@@ -198,10 +199,14 @@ def ask_ai():
     user_id = data.get('user_id','')
     query_prompt = (
         basic_query + "\n\nUser Question: " + question + 
-        "\n\nCRITICAL: You MUST use proper Markdown formatting. Use headings (###), bold text, bullet points, and most importantly, use DOUBLE NEWLINES (\n\n) between paragraphs and sections so they don't mash together."
+        "\n\nCRITICAL: You MUST use proper HTML formatting for the response. Use structural HTML tags like <h3>, <ul>, <li>, <strong>, and <p>. "
+        "Always define paragraphs with <p> to separate text blocks. DO NOT use markdown, output ONLY the HTML string."
     )
     ans = get_answer_from_grok(query_prompt)
     ans = ans.strip()
+
+    # Sometimes LLMs wrap HTML in ```html ... ``` block, let's clean that up just in case
+    ans = ans.replace("```html", "").replace("```", "").strip()
 
     response = supabase.rpc(
         "increment_column",
