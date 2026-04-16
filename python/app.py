@@ -195,10 +195,7 @@ def ask_ai():
     data = request.get_json()
     question = data.get('question', '')
     user_id = data.get('user_id','')
-    ans = get_answer_from_grok(basic_query+"/n/n"+question)
-    ans = re.sub(r'[*_#`>-]', '', ans)           
-    ans = re.sub(r'\n+', ' ', ans)               
-    ans = re.sub(r'\s{2,}', ' ', ans)   
+    ans = get_answer_from_grok(basic_query+"\n\nUser Question: "+question+"\n\nProvide the answer formatted beautifully in Markdown.")
     ans = ans.strip()
 
     response = supabase.rpc(
@@ -422,7 +419,7 @@ def gen_curr():
     prompt = (
         f"You are an expert curriculum designer. Create a {duration}-day learning plan for {goal} "
         "in this JSON format only (no extra text): "
-        "{'Day 1': {'Topic': '', 'Description': '', 'Subtopics': ['']}, 'Day 2': ...}. "
+        "{\"Day 1\": {\"Topic\": \"\", \"Description\": \"\", \"Subtopics\": [\"\"]}, \"Day 2\": ...}. "
         "Use simple language, keep it short, structured, and well-formatted. "
         "Each day must have equal topics.Each day can have maximum of 3 topics only.No topic should have (,) in name"
     )
