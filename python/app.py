@@ -12,16 +12,19 @@ from flask_cors import CORS
 from datetime import datetime
 
 import re, json
-import google.generativeai as genai
+from groq import Groq
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-_gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+_groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def get_answer_from_grok(prompt):
-    """Call Google Gemini 1.5 Flash API for AI responses."""
+    """Call Groq API (LLaMA 3.3 70B) for AI responses."""
     try:
-        response = _gemini_model.generate_content(prompt)
-        return response.text
+        response = _groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+        )
+        return response.choices[0].message.content
     except Exception as e:
         return f"Error: {e}"
 
