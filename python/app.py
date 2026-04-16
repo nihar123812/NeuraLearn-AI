@@ -196,7 +196,11 @@ def ask_ai():
     data = request.get_json()
     question = data.get('question', '')
     user_id = data.get('user_id','')
-    ans = get_answer_from_grok(basic_query+"\n\nUser Question: "+question+"\n\nProvide the answer formatted beautifully in Markdown.")
+    query_prompt = (
+        basic_query + "\n\nUser Question: " + question + 
+        "\n\nCRITICAL: You MUST use proper Markdown formatting. Use headings (###), bold text, bullet points, and most importantly, use DOUBLE NEWLINES (\n\n) between paragraphs and sections so they don't mash together."
+    )
+    ans = get_answer_from_grok(query_prompt)
     ans = ans.strip()
 
     response = supabase.rpc(
@@ -415,10 +419,10 @@ def gen_curr():
 
     prompt = (
         f"You are an expert curriculum designer. Create a {duration}-day learning plan for {goal}. "
-        "Output ONLY a valid JSON object containing the plan. Example structure: "
-        "{\"Day 1\": {\"Topic\": \"Python Basics\", \"Description\": \"Intro to Python\", \"Subtopics\": [\"Variables\"]} }. "
+        "Output ONLY a valid JSON object. Ensure the ROOT keys of your JSON object are directly the days (e.g., \"Day 1\", \"Day 2\"). DO NOT wrap the output in a parent key. "
+        "Example structure: {\"Day 1\": {\"Topic\": \"Python Basics\", \"Description\": \"Intro...\", \"Subtopics\": [\"Variables\"]} }. "
         "Use simple language, keep it short, structured, and well-formatted. "
-        "Each day must have equal topics. Each day can have maximum of 3 topics only. No topic should have (,) in name."
+        "Each day must have equal topics. Each day can have maximum of 3 subtopics only. No subtopic should have commas."
     )
 
     try:
@@ -427,8 +431,12 @@ def gen_curr():
         if response:
             try:
                 curriculum = json.loads(response)
+                # Auto-unwrap if AI returned {"plan": {"Day 1": ...}}
+                if isinstance(curriculum, dict) and len(curriculum) == 1 and not any(k.startswith("Day") for k in curriculum.keys()):
+                    curriculum = list(curriculum.values())[0]
+                
                 return jsonify({"success": True, "data": curriculum})
-            except json.JSONDecodeError:
+            except Exception as parse_err:
                 return jsonify({"success": False, "message": "Unable to parse JSON from AI response."})
         else:
             return jsonify({"success": False, "message": "Empty response from AI."})
