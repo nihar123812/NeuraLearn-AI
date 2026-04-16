@@ -23,9 +23,9 @@ const AskAIChat = () => {
       });
       const data = await resp.json();
       if (data.success) {
-        toast.info("+5XP Added!🎉")
+        toast.info("+5XP Added!\uD83C\uDF89")
         if(data.passed>0){
-            toast.info(`Wohoo! Level ${data.passed+1} Reached🎉`);
+            toast.info(`Wohoo! Level ${data.passed+1} Reached\uD83C\uDF89`);
         }
         setMessages(prev => [...prev, { sender: "AI", text: data.answer }]);
       }
@@ -58,9 +58,13 @@ const AskAIChat = () => {
                 {messages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={msg.sender === "user" ? "askai-message user" : "askai-message ai"}
+                    className={msg.sender === "user" ? "askai-message user" : "askai-message ai markdown-body"}
                   >
-                    {msg.text}
+                    {msg.sender === "AI" ? (
+                      <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+                    ) : (
+                      msg.text
+                    )}
                   </div>
                 ))}
               </div>
