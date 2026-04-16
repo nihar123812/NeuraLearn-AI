@@ -42,8 +42,9 @@ routerc.post("/getcurriculum", verifyToken, async (req, res) => {
     if (fullProgressError) return res.json({ success: false });
 
     const { data: barChartData } = await supabase.rpc("select_daily_progress_by_user", { p_user_id: userId });
-    const { data: donutSummary } = await supabase.from("today_progress_summary").select("*");
+    const { data: donutSummary } = await supabase.from("today_progress_summary").select("*").eq("user_id", userId);
     const { data: leaderboardData } = await supabase.rpc("get_top_leaderboard");
+    const { data: userData } = await supabase.from("Users").select("XP").eq("id", userId).single();
 
     res.json({
       success: true,
@@ -51,9 +52,11 @@ routerc.post("/getcurriculum", verifyToken, async (req, res) => {
       prog: fullProgressData,
       bar: barChartData || [],
       donut: donutSummary?.[0]?.total_completed_today || 0,
-      leaderboard: leaderboardData || []
+      leaderboard: leaderboardData || [],
+      userXP: userData?.XP || 0
     });
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.json({ success: false });
   }
 });

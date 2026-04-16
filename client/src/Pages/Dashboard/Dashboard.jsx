@@ -24,6 +24,7 @@ const Dashboard = () => {
   });
   const [classificationMsg, setClassificationMsg] = useState("");
   const [loading, setLoading] = useState(true);
+  const [serverXp, setServerXp] = useState(0);
 
   const getUserId = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -56,14 +57,22 @@ const Dashboard = () => {
     let total = 0;
 
     dataList.forEach(item => {
-      const day = 1 + Math.floor((new Date() - new Date(item.startdate)) / (1000 * 60 * 60 * 24));
-      let currData = item.curriculum;
-      if (currData && Object.keys(currData).length === 1 && !Object.keys(currData)[0].startsWith("Day")) {
-        currData = currData[Object.keys(currData)[0]];
-      }
+      const start = new Date(item.startdate);
+      const now = new Date();
+      const diffTime = now - start;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const day = 1 + diffDays;
       
-      if (currData && currData[`Day ${day}`] && currData[`Day ${day}`]?.Subtopics) {
-        total += currData[`Day ${day}`].Subtopics.length;
+      // Only count topics if today is between start and end date
+      if (day >= 1 && day <= parseInt(item.duration)) {
+        let currData = item.curriculum;
+        if (currData && Object.keys(currData).length === 1 && !Object.keys(currData)[0].startsWith("Day")) {
+          currData = currData[Object.keys(currData)[0]];
+        }
+        
+        if (currData && currData[`Day ${day}`] && currData[`Day ${day}`]?.Subtopics) {
+          total += currData[`Day ${day}`].Subtopics.length;
+        }
       }
     });
 
@@ -101,6 +110,7 @@ const Dashboard = () => {
         allcurr(resp.data.data);
         setbar(resp.data.bar);
         setUsers(resp.data.leaderboard);
+        setServerXp(resp.data.userXP || 0);
         calculateDonut(resp.data.data);
         Setdonut(prev => ({
           ...prev,
@@ -134,17 +144,16 @@ const Dashboard = () => {
     );
   }
 
-  const currentXp = users.find(u => u.name === name)?.xp || 0;
-
   return (
     <div>
       <Navbar />
       <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
            <h1 className="dashboard-title">Welcome, {name}!</h1>
-           <span style={{ background: "#3F8EFC", color: "white", padding: "0.4rem 1rem", borderRadius: "2rem", fontWeight: "bold" }}>
-             XP: {currentXp}
-           </span>
+           <div style={{ background: "linear-gradient(135deg, #3F8EFC, #3EE4B2)", color: "white", padding: "0.5rem 1.2rem", borderRadius: "10px", fontWeight: "bold", boxShadow: "0 4px 12px rgba(63,142,252,0.3)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+             <span style={{ fontSize: "1.2rem" }}>⭐</span>
+             <span>{serverXp} XP</span>
+           </div>
         </div>
         {classificationMsg && classificationMsg.length > 0 && (
           <div className="classification-message">
