@@ -125,7 +125,7 @@ SUPA_URL="your_supabase url"
 SUPA_KEY="your_supabase key"
 JWT_SECRET="jwt secret"
 CLIENT_URL="client url"
-BARD_API_KEY="__Secure-1PSID" 
+GROQ_API_KEY="__Secure-1PSID" 
 ```
 
 #### From application tab on chrome dev tools, select cookies on bard site and get __Secure-1PSID value
