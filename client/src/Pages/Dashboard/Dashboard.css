@@ -14,6 +14,39 @@
   font-weight: 700;
   font-size: 2rem;
   text-align: center;
+  margin: 0;
+}
+
+.dashboard-welcome-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.xp-badge {
+  background: linear-gradient(135deg, #3F8EFC, #3EE4B2);
+  color: white;
+  padding: 0.6rem 1.4rem;
+  border-radius: 12px;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(63,142,252,0.25);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.1rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: transform 0.2s;
+}
+
+.xp-badge:hover {
+  transform: translateY(-2px);
+}
+
+.xp-star {
+  font-size: 1.3rem;
 }
 
 /* Subtitle */

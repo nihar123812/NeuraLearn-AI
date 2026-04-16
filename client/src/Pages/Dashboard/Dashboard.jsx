@@ -148,10 +148,10 @@ const Dashboard = () => {
     <div>
       <Navbar />
       <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div className="dashboard-welcome-row">
            <h1 className="dashboard-title">Welcome, {name}!</h1>
-           <div style={{ background: "linear-gradient(135deg, #3F8EFC, #3EE4B2)", color: "white", padding: "0.5rem 1.2rem", borderRadius: "10px", fontWeight: "bold", boxShadow: "0 4px 12px rgba(63,142,252,0.3)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-             <span style={{ fontSize: "1.2rem" }}>⭐</span>
+           <div className="xp-badge">
+             <span className="xp-star">⭐</span>
              <span>{serverXp} XP</span>
            </div>
         </div>
