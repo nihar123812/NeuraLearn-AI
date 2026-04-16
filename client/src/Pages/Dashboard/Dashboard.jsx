@@ -57,8 +57,13 @@ const Dashboard = () => {
 
     dataList.forEach(item => {
       const day = 1 + Math.floor((new Date() - new Date(item.startdate)) / (1000 * 60 * 60 * 24));
-      if (item.curriculum[`Day ${day}`]) {
-        total += item.curriculum[`Day ${day}`].Subtopics.length;
+      let currData = item.curriculum;
+      if (currData && Object.keys(currData).length === 1 && !Object.keys(currData)[0].startsWith("Day")) {
+        currData = currData[Object.keys(currData)[0]];
+      }
+      
+      if (currData && currData[`Day ${day}`] && currData[`Day ${day}`]?.Subtopics) {
+        total += currData[`Day ${day}`].Subtopics.length;
       }
     });
 
@@ -129,11 +134,18 @@ const Dashboard = () => {
     );
   }
 
+  const currentXp = users.find(u => u.name === name)?.xp || 0;
+
   return (
     <div>
       <Navbar />
       <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
-        <h1 className="dashboard-title">Welcome, {name}!</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+           <h1 className="dashboard-title">Welcome, {name}!</h1>
+           <span style={{ background: "#3F8EFC", color: "white", padding: "0.4rem 1rem", borderRadius: "2rem", fontWeight: "bold" }}>
+             XP: {currentXp}
+           </span>
+        </div>
         {classificationMsg && classificationMsg.length > 0 && (
           <div className="classification-message">
             {classificationMsg}
