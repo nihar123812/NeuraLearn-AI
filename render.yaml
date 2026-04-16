@@ -1,0 +1,57 @@
+services:
+  # Python Flask AI Backend
+  - type: web
+    name: neuralearn-python
+    runtime: python
+    rootDir: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SUPA_URL
+        sync: false
+      - key: SUPA_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: GROK_API_KEY
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.6
+
+  # Node.js Express Backend
+  - type: web
+    name: neuralearn-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: SUPA_URL
+        sync: false
+      - key: SUPA_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+
+  # React Frontend (Static Site)
+  - type: web
+    name: neuralearn-client
+    runtime: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_BACKEND_URL
+        sync: false
+      - key: VITE_PYTHON_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

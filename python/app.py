@@ -485,20 +485,10 @@ def gen_quiz():
     return jsonify({"success": True, "questions": questions})
 
 
-
-
-
-
-    return jsonify({
-        "success": True,
-        "data": {"questions": all_questions[:total]},
-        "message": "Unable to generate enough questions. Try Again" if len(all_questions) < total else "Generated full quiz!"
-    })
-
-
 @app.route('/')
 def home():
     return jsonify({"message": "Hello from NeuraLearn AI Python server!"})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get("PORT", 5001))
+    app.run(debug=False, host="0.0.0.0", port=port)
