@@ -16,14 +16,18 @@ from groq import Groq
 
 _groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def get_answer_from_grok(prompt):
+def get_answer_from_grok(prompt, is_json=False):
     """Call Groq API (LLaMA 3.3 70B) for AI responses."""
     try:
-        response = _groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-        )
+        kwargs = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7,
+        }
+        if is_json:
+            kwargs["response_format"] = {"type": "json_object"}
+
+        response = _groq_client.chat.completions.create(**kwargs)
         return response.choices[0].message.content
     except Exception as e:
         return f"Error: {e}"
@@ -144,25 +148,22 @@ from io import StringIO
 def generate_quiz_by_topics(topics, questions_per_topic=2):
     topic_list = ', '.join([f'"{t}"' for t in topics])
     prompt = (
-        f"Please provide {questions_per_topic * len(topics)} quiz questions on topics: {topic_list} "
-        "as plain CSV text without any code block formatting or backticks. "
-        "The CSV should have these columns: topic, question, option1, option2, option3, option4, answer. "
-        "Do not include any extra line breaks inside fields, and do not wrap the CSV inside triple backticks or any other code formatting. "
-        "Just give me plain CSV content. Give column names as the first row."
+        f"Please provide {questions_per_topic * len(topics)} quiz questions on topics: {topic_list}. "
+        "Return the response as a JSON array where each object has these fields: "
+        "'topic', 'question', 'option1', 'option2', 'option3', 'option4', 'answer'. "
+        "Return ONLY the JSON array containing the objects, ensuring it is perfectly formatted JSON wrapped in an outer object with key 'questions'. JSON structure: {\"questions\": [{\"topic\":...}]}."
     )
 
     try:
-        answer = get_answer_from_grok(prompt)
-        csv_file = StringIO(answer)
-        reader = csv.DictReader(csv_file)
-
+        answer = get_answer_from_grok(prompt, is_json=True)
+        json_data = json.loads(answer)
         questions = []
-        for row in reader:
+        for row in json_data.get("questions", []):
             questions.append({
-                "topic": row["topic"].strip(),
-                "question": row["question"].strip(),
-                "options": [row["option1"].strip(), row["option2"].strip(), row["option3"].strip(), row["option4"].strip()],
-                "answer": row["answer"].strip()
+                "topic": row.get("topic", "").strip(),
+                "question": row.get("question", "").strip(),
+                "options": [row.get("option1", "").strip(), row.get("option2", "").strip(), row.get("option3", "").strip(), row.get("option4", "").strip()],
+                "answer": row.get("answer", "").strip()
             })
 
         return questions
@@ -384,16 +385,12 @@ def explain_topic():
         "\"ex\" gives an example or application; \"form\" is an array of objects each with \"type\" (either \"formula\" or \"syntax\") and \"content\" describing formulas or code syntax; "
         "\"mistakes\" is an array listing common mistakes to avoid; \"summary\" is a 2–3 line summary or takeaway. Use simple language, analogies, and code snippets if helpful. "
         "Also include one relevant YouTube video with title and URL, and one relevant article with title and URL in the response. make sure they are existing right now."
-        "Respond with only valid JSON in a ```json block, no explanation or markdown. Now explain the topic within 2400 characters:"
+        "Respond with a valid JSON object ONLY. Ensure it contains definition, importance, components, steps, example, formulas, mistakes, summary."
     )
 
     try:
-        raw_ans = get_answer_from_grok(explain_prompt + topic)
-
-        match = re.search(r"```json\s*(.*?)\s*```", raw_ans, re.DOTALL | re.IGNORECASE)
-        json_str = match.group(1).strip() if match else raw_ans
-
-        ans_json = json.loads(json_str)
+        raw_ans = get_answer_from_grok(explain_prompt + topic, is_json=True)
+        ans_json = json.loads(raw_ans)
 
         required_keys = {"def", "imp", "comp", "steps", "ex", "form", "mistakes", "summary"}
         if not required_keys.issubset(ans_json.keys()):
@@ -417,25 +414,19 @@ def gen_curr():
     duration = data.get('duration', '')
 
     prompt = (
-        f"You are an expert curriculum designer. Create a {duration}-day learning plan for {goal} "
-        "in this JSON format only (no extra text): "
-        "{\"Day 1\": {\"Topic\": \"\", \"Description\": \"\", \"Subtopics\": [\"\"]}, \"Day 2\": ...}. "
+        f"You are an expert curriculum designer. Create a {duration}-day learning plan for {goal}. "
+        "Output ONLY a valid JSON object containing the plan. Example structure: "
+        "{\"Day 1\": {\"Topic\": \"Python Basics\", \"Description\": \"Intro to Python\", \"Subtopics\": [\"Variables\"]} }. "
         "Use simple language, keep it short, structured, and well-formatted. "
-        "Each day must have equal topics.Each day can have maximum of 3 topics only.No topic should have (,) in name"
+        "Each day must have equal topics. Each day can have maximum of 3 topics only. No topic should have (,) in name."
     )
 
     try:
-        response = get_answer_from_grok(prompt)
-
+        response = get_answer_from_grok(prompt, is_json=True)
+        
         if response:
-            match = re.search(r"```json(.*?)```", response, re.DOTALL)
-            if match:
-                json_str = match.group(1).strip()
-            else:
-                json_str = response.strip()
-
             try:
-                curriculum = json.loads(json_str)
+                curriculum = json.loads(response)
                 return jsonify({"success": True, "data": curriculum})
             except json.JSONDecodeError:
                 return jsonify({"success": False, "message": "Unable to parse JSON from AI response."})
