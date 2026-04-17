@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import './Navbar.css'
 import curriculum from "../../assets/curriculum.png"
 import quiz from "../../assets/quiz.png"
@@ -34,7 +35,9 @@ const Navbar = ({ minimal = false }) => {
 
       {!minimal && (
         <div className="navbar-links">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="navbar-curriculum"
             onClick={handleCurriculum}
             title="Curriculum"
@@ -46,8 +49,10 @@ const Navbar = ({ minimal = false }) => {
               width={60}
               height={60}
             />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="navbar-quiz"
             onClick={handleQuiz}
             title="Quiz"
@@ -59,16 +64,27 @@ const Navbar = ({ minimal = false }) => {
               width={60}
               height={60}
             />
-          </button>
-          <button className="navbar-profile" onClick={handleProfile} title="Profile">
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+            className="navbar-profile" 
+            onClick={handleProfile} 
+            title="Profile"
+          >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="8" r="4" stroke="#3F8EFC" strokeWidth="2" />
               <path d="M4 20c0-2.5 3.5-4 8-4s8 1.5 8 4" stroke="#3F8EFC" strokeWidth="2" strokeLinecap="round"/>
             </svg>
-          </button>
-          <button className="navbar-logout" onClick={handleLogout}>
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.05, boxShadow: "0px 5px 15px rgba(63, 142, 252, 0.3)" }}
+            whileTap={{ scale: 0.95 }}
+            className="navbar-logout" 
+            onClick={handleLogout}
+          >
             Logout
-          </button>
+          </motion.button>
         </div>
       )}
     </nav>

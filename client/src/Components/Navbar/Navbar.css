@@ -5,11 +5,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.7rem 2rem;
-  background: #fff;
-  box-shadow: 0 2px 12px #3F8EFC11;
-  position: relative;
-  z-index: 10;
+  padding: 0.8rem 2.5rem;
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .navbar-logo {

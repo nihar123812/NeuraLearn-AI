@@ -8,6 +8,7 @@ import BarChartComponent from "../../Components/Charts/BarChartComponent";
 import AskAIChat from "../../Components/AskAIChat/AskAIChat";
 import DonutChart from "../../Components/Charts/DonutChart";
 import Loading from "../../Components/Loading/Loading";
+import { motion } from "framer-motion";
 
 const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem('user')) || {};
@@ -145,22 +146,22 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
+    <motion.div initial="hidden" animate="visible" variants={containerVariants}>
       <Navbar />
       <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
-        <div className="dashboard-welcome-row">
+        <motion.div variants={itemVariants} className="dashboard-welcome-row">
            <h1 className="dashboard-title">Welcome, {name}!</h1>
-           <div className="xp-badge">
+           <motion.div whileHover={{ scale: 1.05 }} className="xp-badge">
              <span className="xp-star">⭐</span>
              <span>{serverXp} XP</span>
-           </div>
-        </div>
+           </motion.div>
+        </motion.div>
         {classificationMsg && classificationMsg.length > 0 && (
-          <div className="classification-message">
+          <motion.div variants={itemVariants} className="classification-message">
             {classificationMsg}
-          </div>
+          </motion.div>
         )}
-        {curr.length > 0 ? <div className="curriculums">
+        {curr.length > 0 ? <motion.div variants={itemVariants} className="curriculums">
           {curr
             .filter(item => {
               const now = new Date();
@@ -169,28 +170,35 @@ const Dashboard = () => {
               return start <= now && now <= end;
             })
             .map((item, index) => (
-              <div key={index} className="day-card">
-                <h4 style={{ cursor: "pointer" }} onClick={() => nav(`/study-curriculum/${item.id}`)}>
+              <motion.div 
+                key={index} 
+                className="day-card"
+                whileHover={{ scale: 1.03, translateY: -5 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => nav(`/study-curriculum/${item.id}`)}
+                style={{ cursor: "pointer" }}
+              >
+                <h4>
                   Day {1 + Math.floor((new Date() - new Date(item.startdate)) / (1000 * 60 * 60 * 24))} of {item.topic}
                 </h4>
-              </div>
+              </motion.div>
             ))}
-        </div> : ""}
-        {donut.total > 0 || bar.length > 0 ? <div className="dashboard-charts-row">
-          {donut.total > 0 ? <div className="dashboard-chart-card">
+        </motion.div> : ""}
+        {donut.total > 0 || bar.length > 0 ? <motion.div variants={itemVariants} className="dashboard-charts-row">
+          {donut.total > 0 ? <motion.div whileHover={{ scale: 1.02 }} className="dashboard-chart-card">
             <DonutChart completed={donut.completed > donut.total ? donut.total : donut.completed} total={donut.total} title={"Today Progress"} ct={"Completed"} rt={"Remaining"} />
-          </div> : ""}
+          </motion.div> : ""}
           {bar.length > 0 ?
 
-            <div className="dashboard-chart-card">
+            <motion.div whileHover={{ scale: 1.02 }} className="dashboard-chart-card">
               <BarChartComponent data={bar} title={"Last 7 Days Progress"} col={"date"} row={"count_of_completed"} rowname={"Completed"} />
-            </div> : ""}
-        </div>
+            </motion.div> : ""}
+        </motion.div>
           : ""}
 
       </div>
 
-      {users && users.length > 0 ? <div className="leaderboard-container">
+      {users && users.length > 0 ? <motion.div variants={itemVariants} className="leaderboard-container">
         <h2 className="leaderboard-title">🏆 Leaderboard – Top 20 by XP</h2>
         <div className="leaderboard-table-container">
           <table className="leaderboard-table">
@@ -212,29 +220,29 @@ const Dashboard = () => {
             </tbody>
           </table>
         </div>
-      </div> : ""}
+      </motion.div> : ""}
 
-      <div class="daily-tasks">
-        <h3 class="tasks-heading">🎯 Daily XP Tasks</h3>
+      <motion.div variants={itemVariants} className="daily-tasks">
+        <h3 className="tasks-heading">🎯 Daily XP Tasks</h3>
 
-        <div class="task-item completed">
-          <span class="task-title">✅ Read your first topic of the day</span>
-          <span class="task-reward">+10 XP</span>
-        </div>
+        <motion.div whileHover={{ x: 5 }} className="task-item completed">
+          <span className="task-title">✅ Read your first topic of the day</span>
+          <span className="task-reward">+10 XP</span>
+        </motion.div>
 
-        <div class="task-item">
-          <span class="task-title">📊 Score more than 60% in quiz</span>
-          <span class="task-reward">+20 XP</span>
-        </div>
+        <motion.div whileHover={{ x: 5 }} className="task-item">
+          <span className="task-title">📊 Score more than 60% in quiz</span>
+          <span className="task-reward">+20 XP</span>
+        </motion.div>
 
-        <div class="task-item">
-          <span class="task-title">🏆 Score 100% in quiz</span>
-          <span class="task-reward">+30 XP</span>
-        </div>
-      </div>
+        <motion.div whileHover={{ x: 5 }} className="task-item">
+          <span className="task-title">🏆 Score 100% in quiz</span>
+          <span className="task-reward">+30 XP</span>
+        </motion.div>
+      </motion.div>
 
       <AskAIChat />
-    </div>
+    </motion.div>
   );
 };
 

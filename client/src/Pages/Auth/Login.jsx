@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Navbar from "../../Components/Navbar/Navbar";
+import { motion, AnimatePresence } from "framer-motion";
 
 const avatars = [
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Christopher",
@@ -65,7 +66,13 @@ function Login() {
       <Navbar minimal />
 
       <div className="auth-wrapper">
-        <div className="auth-glass-card">
+        <motion.div 
+          className="auth-glass-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+          layout
+        >
           <div className="auth-brand">
             <span className="brand-icon">🧠</span>
             <h1>NeuraLearn AI</h1>
@@ -77,17 +84,25 @@ function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
-            {isSignup && (
-              <div className="field">
-                <label>Name</label>
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-            )}
+            <AnimatePresence mode="popLayout">
+              {isSignup && (
+                <motion.div 
+                  className="field"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <label>Name</label>
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="field">
               <label>Email</label>
@@ -109,39 +124,53 @@ function Login() {
               />
             </div>
 
-            {isSignup && (
-              <div className="field">
-                <label>Choose Avatar</label>
-                <div className="avatar-row">
-                  {avatars.map((url) => (
-                    <img
-                      key={url}
-                      src={url}
-                      alt="avatar"
-                      className={`avatar ${
-                        avatar === url ? "selected" : ""
-                      }`}
-                      onClick={() => setAvatar(url)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            <AnimatePresence mode="popLayout">
+              {isSignup && (
+                <motion.div 
+                  className="field"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <label>Choose Avatar</label>
+                  <div className="avatar-row">
+                    {avatars.map((url) => (
+                      <motion.img
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        key={url}
+                        src={url}
+                        alt="avatar"
+                        className={`avatar ${
+                          avatar === url ? "selected" : ""
+                        }`}
+                        onClick={() => setAvatar(url)}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {error && <div className="error">{error}</div>}
 
-            <button className="primary-btn">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="primary-btn"
+            >
               {isSignup ? "Create Account" : "Sign In"}
-            </button>
+            </motion.button>
           </form>
 
           <div className="switch-auth">
             {isSignup ? "Already have an account?" : "New to NeuraLearn?"}
-            <span onClick={() => setIsSignup(!isSignup)}>
+            <span onClick={() => { setError(""); setIsSignup(!isSignup); }}>
               {isSignup ? " Sign In" : " Sign Up"}
             </span>
           </div>
-        </div>
+        </motion.div>
 
         <footer className="auth-footer">
           <p>
