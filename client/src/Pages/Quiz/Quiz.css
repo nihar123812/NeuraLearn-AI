@@ -1,13 +1,14 @@
 .quiz-container {
   max-width: 1200px;
-  width: 100%; /* ✅ Add this */
+  width: 100%;
   margin: 2.5rem auto;
-  background: #fafdff;
-  border-radius: 1.5rem;
-  box-shadow: 0 8px 32px #3F8EFC22;
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
   padding: 2.5rem 2rem;
-  overflow-x: auto; /* ✅ Optional: allows scrolling if needed */
-  box-sizing: border-box; /* ✅ Ensures padding doesn't cause overflow */
+  overflow-x: auto;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
 }
 
 
@@ -21,36 +22,38 @@
 
 .quiz-table th, .quiz-table td {
   padding: 1rem 1.2rem;
-  background: #fff;
-  border-bottom: 1.5px solid #e3eafc;
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border-color);
   text-align: left;
   font-size: 1.08rem;
-  color: #222; /* Improved contrast */
+  color: var(--text-main);
 }
 
 .quiz-table th {
-  background: #e9f1fb;
-  color: #1a237e;
-  font-weight: 700;
-  border-bottom: 2.5px solid #3F8EFC22;
+  background: #f8fafc;
+  color: var(--primary);
+  font-weight: 800;
+  border-bottom: 2px solid var(--primary);
 }
 
 .quiz-row {
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: all 0.2s;
   cursor: pointer;
   border-radius: 0.7rem;
-  box-shadow: 0 1px 6px #3F8EFC08;
-  background: #fff;
+  box-shadow: var(--shadow-sm);
+  background: var(--surface);
 }
 
 .quiz-row:hover, .quiz-row:focus {
-  background: #e3f2fd;
-  box-shadow: 0 2px 12px #3F8EFC22;
+  background: #f8fafc;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .quiz-row.selected {
-  background: #e3eafc;
-  box-shadow: 0 4px 18px #3F8EFC22;
+  background: #eff6ff;
+  box-shadow: var(--shadow-lg);
+  border-left: 4px solid var(--primary);
 }
 
 .quiz-expand-icon {
@@ -68,21 +71,23 @@
 
 .quiz-analytics {
   margin-top: 1.5rem;
-  background: #fafdff;
-  border-radius: 1rem;
+  background: var(--surface);
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 2px 12px #3F8EFC11;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
 .quiz-analytics-dropdown {
   animation: dropdownFade 0.3s;
-  border-radius: 1rem;
-  background: #fff;
+  border-radius: 16px;
+  background: var(--surface);
   display: flex;
   gap: 2.5rem;
   padding: 2.5rem 2rem;
-  box-shadow: 0 4px 24px #3F8EFC22;
+  box-shadow: var(--shadow-md);
   margin: 1.5rem 0;
+  border: 1px solid var(--border-color);
 }
 
 @keyframes dropdownFade {

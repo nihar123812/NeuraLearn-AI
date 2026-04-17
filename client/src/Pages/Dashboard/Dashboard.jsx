@@ -136,7 +136,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div>
+      <div className="dashboard-container">
         <Navbar />
         <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
           <Loading />
@@ -146,10 +146,16 @@ const Dashboard = () => {
   }
 
   return (
-    <motion.div initial="hidden" animate="visible" variants={containerVariants}>
+    <div className="dashboard-container">
       <Navbar />
-      <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
-        <motion.div variants={itemVariants} className="dashboard-welcome-row">
+      <motion.div 
+        initial="hidden" 
+        animate="visible" 
+        variants={containerVariants}
+        className="dashboard-animated-content"
+      >
+        <div className="dashboard-main" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "3rem" }}>
+          <motion.div variants={itemVariants} className="dashboard-welcome-row">
            <h1 className="dashboard-title">Welcome, {name}!</h1>
            <motion.div whileHover={{ scale: 1.05 }} className="xp-badge">
              <span className="xp-star">⭐</span>
@@ -242,7 +248,8 @@ const Dashboard = () => {
       </motion.div>
 
       <AskAIChat />
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 

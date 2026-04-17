@@ -7,6 +7,7 @@ import "./TakeTest.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../Loading/Loading";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TakeTest = () => {
      const { id, day } = useParams();
@@ -203,7 +204,11 @@ const TakeTest = () => {
                <audio ref={clickAudio} src="/audio/click.mp3" preload="auto" />
                <audio ref={timerAudio} src="/audio/timer.mp3" preload="auto" loop />
                <audio ref={resultAudio} src="/audio/result.mp3" preload="auto" />
-               <div className="take-test-container">
+               <motion.div 
+                    className="take-test-container"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+               >
                     <div className="test-header">
                          <div className="test-progress">
                               <div className="test-progress-label">
@@ -224,16 +229,26 @@ const TakeTest = () => {
                     </div>
                     {!showScore ? (
                          <>
-                              <div className="test-question">
-                                   <h3>
-                                        Q{current + 1}. {questions[current].question}
-                                   </h3>
-                                   <div className="test-options">
-                                        {questions[current].options.map((opt, idx) => (
-                                             <label
-                                                  key={idx}
-                                                  className={`test-option${selected[current] === opt ? " selected" : ""}`}
-                                             >
+                              <AnimatePresence mode="wait">
+                                   <motion.div 
+                                        key={current}
+                                        className="test-question"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                        transition={{ duration: 0.3 }}
+                                   >
+                                        <h3>
+                                             Q{current + 1}. {questions[current].question}
+                                        </h3>
+                                        <div className="test-options">
+                                             {questions[current].options.map((opt, idx) => (
+                                                  <motion.label
+                                                       whileHover={{ scale: 1.02 }}
+                                                       whileTap={{ scale: 0.98 }}
+                                                       key={idx}
+                                                       className={`test-option${selected[current] === opt ? " selected" : ""}`}
+                                                  >
                                                   <input
                                                        type="radio"
                                                        name={`q${current}`}
@@ -242,10 +257,11 @@ const TakeTest = () => {
                                                        onChange={handleOptionChange}
                                                   />
                                                   {opt}
-                                             </label>
-                                        ))}
-                                   </div>
-                              </div>
+                                                  </motion.label>
+                                             ))}
+                                        </div>
+                                   </motion.div>
+                              </AnimatePresence>
                               <div className="test-controls">
                                    <button
                                         onClick={handlePrev}
@@ -264,7 +280,11 @@ const TakeTest = () => {
                               </div>
                          </>
                     ) : (
-                         <>
+                         <motion.div 
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.4 }}
+                         >
                               {!reviewMode ? (
                                    <div className="test-score">
                                         <h2>
@@ -322,9 +342,9 @@ const TakeTest = () => {
                                         </button>
                                    </div>
                               )}
-                         </>
+                         </motion.div>
                     )}
-               </div>
+               </motion.div>
           </div>
      );
 };

@@ -6,6 +6,7 @@ import BarChartComponent from "../../Components/Charts/BarChartComponent";
 import Loading from "../../Components/Loading/Loading";
 import LineChartComponent from "../../Components/Charts/LineChartComponent";
 import "./Quiz.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Quiz = () => {
   const [quizzes, setQuizzes] = useState([]);
@@ -62,7 +63,11 @@ const Quiz = () => {
   return (
     <div>
       <Navbar />
-      <div className="quiz-container">
+      <motion.div 
+        className="quiz-container"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <h2>All Quizzes Taken</h2>
         {quizzes.length === 0 ? (
           <p>No quizzes taken yet.</p>
@@ -80,7 +85,10 @@ const Quiz = () => {
             <tbody>
               {quizzes.map((quiz, idx) => (
                 <React.Fragment key={quiz.id}>
-                  <tr
+                  <motion.tr
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
                     className={`quiz-row${openQuizIndex === idx ? " selected" : ""}`}
                     onClick={() => setOpenQuizIndex(openQuizIndex === idx ? null : idx)}
                     tabIndex={0}
@@ -100,9 +108,14 @@ const Quiz = () => {
                         ? quiz.topics.join(", ")
                         : "None"}
                     </td>
-                  </tr>
+                  </motion.tr>
+                  <AnimatePresence>
                   {openQuizIndex === idx && (
-                    <tr>
+                    <motion.tr
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                    >
                       <td colSpan={5} style={{ background: "#fafdff", padding: 0 }}>
                         <div className="quiz-analytics-dropdown" style={{
                           display: "flex",
@@ -201,14 +214,15 @@ const Quiz = () => {
                           </div>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   )}
+                  </AnimatePresence>
                 </React.Fragment>
               ))}
             </tbody>
           </table>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

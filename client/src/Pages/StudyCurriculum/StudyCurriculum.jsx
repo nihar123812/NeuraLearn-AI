@@ -10,6 +10,7 @@ import axios from "axios";
 import Loading from '../../Components/Loading/Loading.jsx';
 import AskAIChat from "../../Components/AskAIChat/AskAIChat.jsx";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
 
 const StudyCurriculum = () => {
   const [data, setData] = useState({});
@@ -146,19 +147,34 @@ const StudyCurriculum = () => {
       <Navbar />
       <div className="study-curriculum-container">
         <div className="day-nav-row">
-          <button className="triangle-btn" onClick={() => changeDay("left")}>
+          <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="triangle-btn" onClick={() => changeDay("left")}>
             <img src={left} alt="Previous Day" width={40} height={40} />
-          </button>
+          </motion.button>
           <span className="day-label">Day {day}</span>
-          <button className="triangle-btn" onClick={() => changeDay("right")}>
+          <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="triangle-btn" onClick={() => changeDay("right")}>
             <img src={right} alt="Next Day" width={40} height={40} />
-          </button>
+          </motion.button>
         </div>
         
-        <div className="topics-list">
+        <motion.div 
+          className="topics-list"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }}
+        >
           {Object.keys(data).length > 0 &&
             data.curriculum?.[`Day ${day}`]?.Subtopics?.map((topic, idx) => (
-              <div className="topic-card" key={idx}>
+              <motion.div 
+                className="topic-card" 
+                key={idx}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+              >
                 <div
                   className="topic-title-row"
                   onClick={() => handleTopicClick(idx, topic)}
@@ -185,8 +201,14 @@ const StudyCurriculum = () => {
                     />
                   )}
                 </div>
+                <AnimatePresence>
                 {openTopic === idx && (
-                  <div className="topic-dropdown">
+                  <motion.div 
+                    className="topic-dropdown"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
                     <div className="topic-content-area">
                       {topicContents[`${day}-${idx}`] ? (
                         <div>
@@ -315,22 +337,30 @@ const StudyCurriculum = () => {
                         <Loading />
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 )}
-              </div>
+                </AnimatePresence>
+              </motion.div>
             ))
           }
           {/* Take Test Button after all topics */}
-          <div className="take-test-btn-container">
-            <button
+          <motion.div 
+            className="take-test-btn-container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className="take-test-btn"
               onClick={() => nav(`/test/${data.id}/${day}`)}
             >
               <span role="img" aria-label="test" style={{ marginRight: 8 }}>📝</span>
               Take Test
-            </button>
-          </div>
-        </div>
+            </motion.button>
+          </motion.div>
+        </motion.div>
       </div>
       {showBadge && badge!=null ?  
       <div id="modalOverlay" className="hidden">

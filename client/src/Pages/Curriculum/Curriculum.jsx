@@ -9,6 +9,7 @@ import progress from "../../assets/progress.png"
 import del from "../../assets/delete.png"
 import com from "../../assets/completed.png"
 import cert from "../../assets/certificate.png"
+import { motion } from "framer-motion";
 
 const Curriculum = () => {
   const [goal, setGoal] = useState("");
@@ -203,11 +204,22 @@ const Curriculum = () => {
     getCurriculum();
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } }
+  };
+
   return (
-    <div>
+    <>
       <Navbar />
-      <div className="curriculum-main">
-        <div className="curriculum-section">
+      <motion.div initial="hidden" animate="visible" variants={containerVariants} className="curriculum-main">
+        {loadingCurriculum && <Loading />}
+        <motion.div variants={itemVariants} className="curriculum-section">
           <form className="curriculum-form" onSubmit={handleCurriculum}>
             <input
               className="curriculum-input"
@@ -233,7 +245,11 @@ const Curriculum = () => {
             )}
           </form>
           {curriculum && (
-            <div className="curriculum-result">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="curriculum-result"
+            >
               <h3>Day-wise Curriculum</h3>
               <ul>
                 {Object.entries(curriculum)
@@ -257,7 +273,11 @@ const Curriculum = () => {
                     </li>
                   ))}
               </ul>
-              <div className="curriculum-actions">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="curriculum-actions"
+              >
                 <label className="curriculum-date-label">
                   <span className="curriculum-date-title">
                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24" style={{ marginRight: "0.5rem", verticalAlign: "middle" }}>
@@ -276,117 +296,109 @@ const Curriculum = () => {
                   />
                 </label>
                 <button className="curriculum-add-btn" onClick={addCurriculum}>Add Curriculum</button>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
-        </div>
-        <div className="my-curriculums">
-          {loadingCurriculums ? (
-            <Loading />
-          ) : (
-            <>
-              {curr.length > 0 ? <h1>My Curriculums</h1> : ""}
-              {
-                curr.map((item) => {
-                  const today = new Date();
-                  const startDate = new Date(item.startdate);
-                  const endDate = new Date(startDate);
-                  endDate.setDate(startDate.getDate() + parseInt(item.duration));
+        </motion.div>
+        
+        {loadingCurriculums ? (
+          <Loading />
+        ) : (
+          <motion.div variants={itemVariants} className="my-curriculums">
+            {curr.length > 0 ? <h1>My Curriculums</h1> : ""}
+            {curr.map((item) => {
+              const today = new Date();
+              const startDate = new Date(item.startdate);
+              const endDate = new Date(startDate);
+              endDate.setDate(startDate.getDate() + parseInt(item.duration));
 
-                  let status = "Not Started";
-                  if (today >= startDate && today <= endDate) status = "In Progress";
-                  else if (today > endDate) status = "Completed";
+              let status = "Not Started";
+              if (today >= startDate && today <= endDate) status = "In Progress";
+              else if (today > endDate) status = "Completed";
 
-                  const progressPercent = status === "In Progress"
-                    ? Math.min(100, Math.max(0, ((today - startDate) / (endDate - startDate)) * 100))
-                    : 0;
-
-                  return (
-                    <div
-                      className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
-                      key={item.id}
-                    >
-                      <div className="curr-item-header">
-                        <div className="curr-item-main">
-                          <h3 onClick={() => navigate(`/study-curriculum/${item.id}`)}>
-                            {item.duration} days of {item.topic}
-                          </h3>
-
-                          {typeof item.streak === "number" && item.streak > 0 && (
-                            <div className="curriculum-streak">
-                              <span role="img" aria-label="fire">🔥</span>
-                              <span>Streak: {item.streak} day{item.streak > 1 ? "s" : ""}</span>
-                            </div>
-                          )}
+              return (
+                <motion.div
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.02 }}
+                  className={`curr-item ${status.toLowerCase().replace(" ", "-")}`}
+                  key={item.id}
+                >
+                  <div className="curr-item-header">
+                    <div className="curr-item-main">
+                      <h3 onClick={() => navigate(`/study-curriculum/${item.id}`)}>
+                        {item.duration} days of {item.topic}
+                      </h3>
+                      {typeof item.streak === "number" && item.streak > 0 && (
+                        <div className="curriculum-streak">
+                          <span role="img" aria-label="fire">🔥</span>
+                          <span>Streak: {item.streak} day{item.streak > 1 ? "s" : ""}</span>
                         </div>
-
-                        <div className="btns">
-                          {item.completed_count === item.count && item.quiz_count>=item.duration && (
-                            <img
-                              src={cert}
-                              onClick={() => navigate(`/report/${item.id}`)}
-                              width={42}
-                              height={42}
-                              alt="Certificate"
-                              title="View Certificate"
-                              className="btn-icon"
-                            />
-                          )}
-
-                          {status !== "Not Started" && (
-                            <img
-                              src={status === "In Progress" ? progress : com}
-                              alt={status}
-                              className="btn-icon"
-                            />
-                          )}
-
-                          <img
-                            src={del}
-                            onClick={() => deleteCurriculum(item.id)}
-                            alt="Delete"
-                            title="Delete Curriculum"
-                            className="btn-icon"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="expand-section">
-                        <button
-                          className="expand-dashboard-btn"
-                          onClick={() => toggleExpand(item.id)}
-                          aria-label={expanded[item.id] ? "Hide details" : "Show details"}
-                        >
-                          {expanded[item.id] ? "▲" : "▼"}
-                        </button>
-                      </div>
-
-                      {expanded[item.id] && (
-                        loadingDashboard ? (
-                          <div className="loading-center"><Loading /></div>
-                        ) : (
-                          dashboardData[item.id] && Object.keys(dashboardData[item.id]).length>0 && (
-                            <div className="dashboard-details-card">
-                              <h4>Motivation</h4>
-                              <p>{dashboardData[item.id].motivation}</p>
-                              <h4>Tip</h4>
-                              <p>{dashboardData[item.id].tip}</p>
-                              <h4>Insight</h4>
-                              <p>{dashboardData[item.id].insight}</p>
-                            </div>
-                          )
-                        )
                       )}
                     </div>
-
-                  );
-                })
-              }
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+                    <div className="btns">
+                      {item.completed_count === item.count && item.quiz_count>=item.duration && (
+                        <img
+                          src={cert}
+                          onClick={() => navigate(`/report/${item.id}`)}
+                          width={42}
+                          height={42}
+                          alt="Certificate"
+                          title="View Certificate"
+                          className="btn-icon"
+                        />
+                      )}
+                      {status !== "Not Started" && (
+                        <img
+                          src={status === "In Progress" ? progress : com}
+                          alt={status}
+                          className="btn-icon"
+                        />
+                      )}
+                      <img
+                        src={del}
+                        onClick={() => deleteCurriculum(item.id)}
+                        alt="Delete"
+                        title="Delete Curriculum"
+                        className="btn-icon"
+                      />
+                    </div>
+                  </div>
+                  <div className="expand-section">
+                    <button
+                      className="expand-dashboard-btn"
+                      onClick={() => toggleExpand(item.id)}
+                      aria-label={expanded[item.id] ? "Hide details" : "Show details"}
+                    >
+                      {expanded[item.id] ? "▲" : "▼"}
+                    </button>
+                  </div>
+                  {expanded[item.id] && (
+                    loadingDashboard ? (
+                      <div className="loading-center"><Loading /></div>
+                    ) : (
+                      dashboardData[item.id] && Object.keys(dashboardData[item.id]).length > 0 && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          className="dashboard-details-card"
+                        >
+                          <h4>Motivation</h4>
+                          <p>{dashboardData[item.id].motivation}</p>
+                          <h4>Tip</h4>
+                          <p>{dashboardData[item.id].tip}</p>
+                          <h4>Insight</h4>
+                          <p>{dashboardData[item.id].insight}</p>
+                        </motion.div>
+                      )
+                    )
+                  )}
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
+      </motion.div>
+    </>
   );
 };
 
